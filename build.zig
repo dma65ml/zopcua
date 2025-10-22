@@ -72,6 +72,12 @@ pub fn build(b: *std.Build) void {
             "-D_DARWIN_C_SOURCE",
             "-D_POSIX_C_SOURCE=200112L",
             "-std=c99",
+            // Disable UB sanitizer for open62541 v1.4.12
+            // This version has a memcpy(NULL, NULL, 0) case in writeValueAttributeWithoutRange
+            // when handling scalar values with arrayDimensionsSize=0, which is technically UB
+            // but works in practice. Fixed in later versions of open62541.
+            // See: vendor/open62541.c line ~39788
+            "-fno-sanitize=undefined",
         },
     });
     lib.addIncludePath(b.path("vendor"));
@@ -96,6 +102,8 @@ pub fn build(b: *std.Build) void {
             "-D_DARWIN_C_SOURCE",
             "-D_POSIX_C_SOURCE=200112L",
             "-std=c99",
+            // See comment above in lib.addCSourceFiles for why this is needed
+            "-fno-sanitize=undefined",
         },
     });
     lib_unit_tests.addIncludePath(b.path("vendor"));
@@ -107,6 +115,36 @@ pub fn build(b: *std.Build) void {
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_lib_unit_tests.step);
+
+    // Integration tests (run as executable, not unit test)
+    const integration_test = b.addExecutable(.{
+        .name = "integration_test",
+        .root_source_file = b.path("tests/integration_test.zig"),
+        .target = target,
+        .optimize = optimize,
+    });
+    integration_test.root_module.addImport("ua", module);
+    integration_test.addCSourceFiles(.{
+        .files = &.{
+            "vendor/open62541.c",
+            "vendor/helpers.c",
+        },
+        .flags = &.{
+            "-D_DARWIN_C_SOURCE",
+            "-D_POSIX_C_SOURCE=200112L",
+            "-std=c99",
+            // See comment above in lib.addCSourceFiles for why this is needed
+            "-fno-sanitize=undefined",
+        },
+    });
+    integration_test.addIncludePath(b.path("vendor"));
+    integration_test.linkLibC();
+    linkMbedtls(b, integration_test, target, optimize, mbedtls_link);
+    linkSystemLibraries(integration_test, target);
+
+    const run_integration_test = b.addRunArtifact(integration_test);
+    const integration_step = b.step("test-integration", "Run integration tests");
+    integration_step.dependOn(&run_integration_test.step);
 
     const docs_lib = b.addStaticLibrary(.{
         .name = "ua",

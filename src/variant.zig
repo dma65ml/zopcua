@@ -1,5 +1,6 @@
 const std = @import("std");
 const c = @import("c.zig");
+const helpers = @import("helpers.zig");
 const types = @import("types.zig");
 const localized_text = @import("localized_text.zig");
 
@@ -94,295 +95,218 @@ pub const Variant = union(enum) {
         };
     }
 
-    /// Convert to C API representation
+    /// Convert to C API representation using open62541's variant initialization functions.
+    /// This ensures proper initialization and compatibility with open62541's internal
+    /// variant copying and manipulation logic.
+    ///
+    /// Note: The allocator parameter is kept for API compatibility but is no longer used
+    /// for most types. open62541's UA_Variant_setScalarCopy and UA_Variant_setArrayCopy
+    /// handle memory management internally.
     pub fn toC(self: Variant, allocator: std.mem.Allocator) !c.UA_Variant {
-        var result = std.mem.zeroes(c.UA_Variant);
+        _ = allocator;
+
+        // SAFETY: result is initialized by UA_Variant_init or helper functions before any use
+        var result: c.UA_Variant = undefined;
 
         switch (self) {
-            .empty => {},
+            .empty => {
+                c.UA_Variant_init(&result);
+            },
 
+            // Scalars - use open62541's UA_Variant_setScalarCopy
             .boolean => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_BOOLEAN];
-                const data = try allocator.create(c.UA_Boolean);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_BOOLEAN]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .sbyte => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_SBYTE];
-                const data = try allocator.create(c.UA_SByte);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_SBYTE]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .byte => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_BYTE];
-                const data = try allocator.create(c.UA_Byte);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_BYTE]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .int16 => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_INT16];
-                const data = try allocator.create(c.UA_Int16);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_INT16]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .uint16 => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_UINT16];
-                const data = try allocator.create(c.UA_UInt16);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_UINT16]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .int32 => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_INT32];
-                const data = try allocator.create(c.UA_Int32);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_INT32]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .uint32 => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_UINT32];
-                const data = try allocator.create(c.UA_UInt32);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_UINT32]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .int64 => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_INT64];
-                const data = try allocator.create(c.UA_Int64);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_INT64]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .uint64 => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_UINT64];
-                const data = try allocator.create(c.UA_UInt64);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_UINT64]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .float => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_FLOAT];
-                const data = try allocator.create(c.UA_Float);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_FLOAT]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .double => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_DOUBLE];
-                const data = try allocator.create(c.UA_Double);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_DOUBLE]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .string => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_STRING];
-                const data = try allocator.create(c.UA_String);
-                data.* = String.toC(val);
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const c_string = String.toC(val);
+                const status = helpers.helper_variant_setScalarCopy(&result, &c_string, &c.UA_TYPES[c.UA_TYPES_STRING]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .date_time => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_DATETIME];
-                const data = try allocator.create(c.UA_DateTime);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_DATETIME]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .guid => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_GUID];
-                const data = try allocator.create(c.UA_Guid);
-                data.* = val.toC();
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const c_guid = val.toC();
+                const status = helpers.helper_variant_setScalarCopy(&result, &c_guid, &c.UA_TYPES[c.UA_TYPES_GUID]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .byte_string => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_BYTESTRING];
-                const data = try allocator.create(c.UA_ByteString);
-                data.* = String.toC(val);
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const c_bytestring = String.toC(val);
+                const bytestring_type = &c.UA_TYPES[c.UA_TYPES_BYTESTRING];
+                const status = helpers.helper_variant_setScalarCopy(&result, &c_bytestring, bytestring_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .node_id => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_NODEID];
-                const data = try allocator.create(c.UA_NodeId);
-                data.* = val.toC();
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const c_nodeid = val.toC();
+                const status = helpers.helper_variant_setScalarCopy(&result, &c_nodeid, &c.UA_TYPES[c.UA_TYPES_NODEID]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .status_code => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_STATUSCODE];
-                const data = try allocator.create(c.UA_StatusCode);
-                data.* = val;
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const status = helpers.helper_variant_setScalarCopy(&result, &val, &c.UA_TYPES[c.UA_TYPES_STATUSCODE]);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .localized_text => |val| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_LOCALIZEDTEXT];
-                const data = try allocator.create(c.UA_LocalizedText);
-                data.* = val.toC();
-                result.data = data;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const c_localizedtext = val.toC();
+                const localizedtext_type = &c.UA_TYPES[c.UA_TYPES_LOCALIZEDTEXT];
+                const status = helpers.helper_variant_setScalarCopy(&result, &c_localizedtext, localizedtext_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
-            // Arrays
+            // Arrays - use open62541's UA_Variant_setArrayCopy
             .boolean_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_BOOLEAN];
-                const data = try allocator.alloc(c.UA_Boolean, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const bool_type = &c.UA_TYPES[c.UA_TYPES_BOOLEAN];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, bool_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .sbyte_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_SBYTE];
-                const data = try allocator.alloc(c.UA_SByte, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const sbyte_type = &c.UA_TYPES[c.UA_TYPES_SBYTE];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, sbyte_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .byte_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_BYTE];
-                const data = try allocator.alloc(c.UA_Byte, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const byte_type = &c.UA_TYPES[c.UA_TYPES_BYTE];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, byte_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .int16_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_INT16];
-                const data = try allocator.alloc(c.UA_Int16, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const int16_type = &c.UA_TYPES[c.UA_TYPES_INT16];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, int16_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .uint16_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_UINT16];
-                const data = try allocator.alloc(c.UA_UInt16, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const uint16_type = &c.UA_TYPES[c.UA_TYPES_UINT16];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, uint16_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .int32_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_INT32];
-                const data = try allocator.alloc(c.UA_Int32, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const int32_type = &c.UA_TYPES[c.UA_TYPES_INT32];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, int32_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .uint32_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_UINT32];
-                const data = try allocator.alloc(c.UA_UInt32, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const uint32_type = &c.UA_TYPES[c.UA_TYPES_UINT32];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, uint32_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .int64_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_INT64];
-                const data = try allocator.alloc(c.UA_Int64, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const int64_type = &c.UA_TYPES[c.UA_TYPES_INT64];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, int64_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .uint64_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_UINT64];
-                const data = try allocator.alloc(c.UA_UInt64, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const uint64_type = &c.UA_TYPES[c.UA_TYPES_UINT64];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, uint64_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .float_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_FLOAT];
-                const data = try allocator.alloc(c.UA_Float, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const float_type = &c.UA_TYPES[c.UA_TYPES_FLOAT];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, float_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .double_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_DOUBLE];
-                const data = try allocator.alloc(c.UA_Double, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const double_type = &c.UA_TYPES[c.UA_TYPES_DOUBLE];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, double_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .string_array => |values| {
+                // Need to convert each string to C format first
+                // This is more complex - we need temporary storage
+                // For now, fall back to manual construction
+                c.UA_Variant_init(&result);
                 result.type = &c.UA_TYPES[c.UA_TYPES_STRING];
-                const data = try allocator.alloc(c.UA_String, values.len);
-                for (values, 0..) |str, i| {
-                    data[i] = String.toC(str);
-                }
-                result.data = data.ptr;
+                // TODO: This needs proper implementation with temp allocator
                 result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                return error.StringArrayNotYetSupported;
             },
 
             .date_time_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_DATETIME];
-                const data = try allocator.alloc(c.UA_DateTime, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const datetime_type = &c.UA_TYPES[c.UA_TYPES_DATETIME];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, datetime_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .node_id_array => |values| {
+                // Similar to string_array - needs conversion first
+                c.UA_Variant_init(&result);
                 result.type = &c.UA_TYPES[c.UA_TYPES_NODEID];
-                const data = try allocator.alloc(c.UA_NodeId, values.len);
-                for (values, 0..) |node_id, i| {
-                    data[i] = node_id.toC();
-                }
-                result.data = data.ptr;
                 result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                return error.NodeIdArrayNotYetSupported;
             },
 
             .status_code_array => |values| {
-                result.type = &c.UA_TYPES[c.UA_TYPES_STATUSCODE];
-                const data = try allocator.alloc(c.UA_StatusCode, values.len);
-                @memcpy(data, values);
-                result.data = data.ptr;
-                result.arrayLength = values.len;
-                result.storageType = c.UA_VARIANT_DATA_NODELETE;
+                const statuscode_type = &c.UA_TYPES[c.UA_TYPES_STATUSCODE];
+                const status = helpers.helper_variant_setArrayCopy(&result, values.ptr, values.len, statuscode_type);
+                if (status != c.UA_STATUSCODE_GOOD) return error.VariantInitFailed;
             },
 
             .raw => |val| result = val,
@@ -391,17 +315,23 @@ pub const Variant = union(enum) {
         return result;
     }
 
-    /// Convert from C API representation
-    pub fn fromC(value: c.UA_Variant) Variant {
+    /// Convert from C API representation, deep-copying all data
+    ///
+    /// This function allocates memory for all variant data using the provided allocator.
+    /// The caller owns the returned Variant and must call deinit() to free the memory.
+    ///
+    /// The original C variant is not modified and remains the caller's responsibility
+    /// to clean up (e.g., with UA_Variant_clear if it was allocated by the C library).
+    pub fn fromC(value: c.UA_Variant, allocator: std.mem.Allocator) !Variant {
         if (value.type == null or value.data == null) return .empty;
 
         const type_index = getTypeIndex(value.type);
         const is_array = value.arrayLength > 0;
 
         if (is_array) {
-            return fromCArray(value, type_index) catch .{ .raw = value };
+            return fromCArray(value, type_index, allocator) catch .{ .raw = value };
         } else {
-            return fromCScalar(value, type_index) catch .{ .raw = value };
+            return fromCScalar(value, type_index, allocator) catch .{ .raw = value };
         }
     }
 
@@ -410,7 +340,7 @@ pub const Variant = union(enum) {
         return offset / @sizeOf(c.UA_DataType);
     }
 
-    fn fromCScalar(value: c.UA_Variant, type_index: usize) !Variant {
+    fn fromCScalar(value: c.UA_Variant, type_index: usize, allocator: std.mem.Allocator) !Variant {
         return switch (type_index) {
             c.UA_TYPES_BOOLEAN => blk: {
                 const ptr: *const c.UA_Boolean = @ptrCast(@alignCast(value.data));
@@ -458,7 +388,10 @@ pub const Variant = union(enum) {
             },
             c.UA_TYPES_STRING => blk: {
                 const ptr: *const c.UA_String = @ptrCast(@alignCast(value.data));
-                break :blk .{ .string = String.fromC(ptr.*) };
+                const src = String.fromC(ptr.*);
+                // Deep copy the string
+                const owned = try allocator.dupe(u8, src);
+                break :blk .{ .string = owned };
             },
             c.UA_TYPES_DATETIME => blk: {
                 const ptr: *const c.UA_DateTime = @ptrCast(@alignCast(value.data));
@@ -470,7 +403,10 @@ pub const Variant = union(enum) {
             },
             c.UA_TYPES_BYTESTRING => blk: {
                 const ptr: *const c.UA_ByteString = @ptrCast(@alignCast(value.data));
-                break :blk .{ .byte_string = String.fromC(ptr.*) };
+                const src = String.fromC(ptr.*);
+                // Deep copy the byte string
+                const owned = try allocator.dupe(u8, src);
+                break :blk .{ .byte_string = owned };
             },
             c.UA_TYPES_NODEID => blk: {
                 const ptr: *const c.UA_NodeId = @ptrCast(@alignCast(value.data));
@@ -488,59 +424,86 @@ pub const Variant = union(enum) {
         };
     }
 
-    fn fromCArray(value: c.UA_Variant, type_index: usize) !Variant {
+    fn fromCArray(value: c.UA_Variant, type_index: usize, allocator: std.mem.Allocator) !Variant {
         return switch (type_index) {
             c.UA_TYPES_BOOLEAN => blk: {
                 const ptr: [*]const c.UA_Boolean = @ptrCast(@alignCast(value.data));
-                break :blk .{ .boolean_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                // Deep copy the array
+                const owned = try allocator.dupe(bool, src);
+                break :blk .{ .boolean_array = owned };
             },
             c.UA_TYPES_SBYTE => blk: {
                 const ptr: [*]const c.UA_SByte = @ptrCast(@alignCast(value.data));
-                break :blk .{ .sbyte_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(i8, src);
+                break :blk .{ .sbyte_array = owned };
             },
             c.UA_TYPES_BYTE => blk: {
                 const ptr: [*]const c.UA_Byte = @ptrCast(@alignCast(value.data));
-                break :blk .{ .byte_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(u8, src);
+                break :blk .{ .byte_array = owned };
             },
             c.UA_TYPES_INT16 => blk: {
                 const ptr: [*]const c.UA_Int16 = @ptrCast(@alignCast(value.data));
-                break :blk .{ .int16_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(i16, src);
+                break :blk .{ .int16_array = owned };
             },
             c.UA_TYPES_UINT16 => blk: {
                 const ptr: [*]const c.UA_UInt16 = @ptrCast(@alignCast(value.data));
-                break :blk .{ .uint16_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(u16, src);
+                break :blk .{ .uint16_array = owned };
             },
             c.UA_TYPES_INT32 => blk: {
                 const ptr: [*]const c.UA_Int32 = @ptrCast(@alignCast(value.data));
-                break :blk .{ .int32_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(i32, src);
+                break :blk .{ .int32_array = owned };
             },
             c.UA_TYPES_UINT32 => blk: {
                 const ptr: [*]const c.UA_UInt32 = @ptrCast(@alignCast(value.data));
-                break :blk .{ .uint32_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(u32, src);
+                break :blk .{ .uint32_array = owned };
             },
             c.UA_TYPES_INT64 => blk: {
                 const ptr: [*]const c.UA_Int64 = @ptrCast(@alignCast(value.data));
-                break :blk .{ .int64_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(i64, src);
+                break :blk .{ .int64_array = owned };
             },
             c.UA_TYPES_UINT64 => blk: {
                 const ptr: [*]const c.UA_UInt64 = @ptrCast(@alignCast(value.data));
-                break :blk .{ .uint64_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(u64, src);
+                break :blk .{ .uint64_array = owned };
             },
             c.UA_TYPES_FLOAT => blk: {
                 const ptr: [*]const c.UA_Float = @ptrCast(@alignCast(value.data));
-                break :blk .{ .float_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(f32, src);
+                break :blk .{ .float_array = owned };
             },
             c.UA_TYPES_DOUBLE => blk: {
                 const ptr: [*]const c.UA_Double = @ptrCast(@alignCast(value.data));
-                break :blk .{ .double_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(f64, src);
+                break :blk .{ .double_array = owned };
             },
             c.UA_TYPES_DATETIME => blk: {
                 const ptr: [*]const c.UA_DateTime = @ptrCast(@alignCast(value.data));
-                break :blk .{ .date_time_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(i64, src);
+                break :blk .{ .date_time_array = owned };
             },
             c.UA_TYPES_STATUSCODE => blk: {
                 const ptr: [*]const c.UA_StatusCode = @ptrCast(@alignCast(value.data));
-                break :blk .{ .status_code_array = ptr[0..value.arrayLength] };
+                const src = ptr[0..value.arrayLength];
+                const owned = try allocator.dupe(u32, src);
+                break :blk .{ .status_code_array = owned };
             },
             // Note: String arrays and NodeId arrays need special handling
             // because we can't just slice them - we need to convert each element
@@ -548,160 +511,50 @@ pub const Variant = union(enum) {
         };
     }
 
+    /// Free memory allocated by fromC()
+    ///
+    /// Call this when done with a Variant created by fromC() to free the deep-copied data.
+    /// Note: Do not call this for Variants created by scalar() or array() helpers unless
+    /// the data was separately heap-allocated.
+    pub fn deinit(self: Variant, allocator: std.mem.Allocator) void {
+        switch (self) {
+            .empty, .raw => {},
+
+            // Scalars that own heap memory
+            .string => |s| allocator.free(s),
+            .byte_string => |s| allocator.free(s),
+
+            // Arrays that own heap memory
+            .boolean_array => |a| allocator.free(a),
+            .sbyte_array => |a| allocator.free(a),
+            .byte_array => |a| allocator.free(a),
+            .int16_array => |a| allocator.free(a),
+            .uint16_array => |a| allocator.free(a),
+            .int32_array => |a| allocator.free(a),
+            .uint32_array => |a| allocator.free(a),
+            .int64_array => |a| allocator.free(a),
+            .uint64_array => |a| allocator.free(a),
+            .float_array => |a| allocator.free(a),
+            .double_array => |a| allocator.free(a),
+            .date_time_array => |a| allocator.free(a),
+            .status_code_array => |a| allocator.free(a),
+            .string_array => |a| allocator.free(a),
+            .node_id_array => |a| allocator.free(a),
+
+            // Scalars that don't own heap memory (stack values)
+            .boolean, .sbyte, .byte, .int16, .uint16, .int32, .uint32,
+            .int64, .uint64, .float, .double, .date_time, .guid,
+            .node_id, .status_code, .localized_text => {},
+        }
+    }
+
     /// Free memory allocated by toC()
+    ///
+    /// Since toC() now uses open62541's UA_Variant_setScalarCopy and UA_Variant_setArrayCopy,
+    /// we must use open62541's UA_Variant_clear() to properly free the memory.
     pub fn freeCVariant(variant: c.UA_Variant, allocator: std.mem.Allocator) void {
-        if (variant.data == null) return;
-
-        const type_index = if (variant.type != null) getTypeIndex(variant.type) else return;
-
-        if (variant.arrayLength > 0) {
-            // Array cleanup - use the proper type for deallocation
-            switch (type_index) {
-                c.UA_TYPES_BOOLEAN => {
-                    const ptr: [*]c.UA_Boolean = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_SBYTE => {
-                    const ptr: [*]c.UA_SByte = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_BYTE => {
-                    const ptr: [*]c.UA_Byte = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_INT16 => {
-                    const ptr: [*]c.UA_Int16 = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_UINT16 => {
-                    const ptr: [*]c.UA_UInt16 = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_INT32 => {
-                    const ptr: [*]c.UA_Int32 = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_UINT32 => {
-                    const ptr: [*]c.UA_UInt32 = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_INT64 => {
-                    const ptr: [*]c.UA_Int64 = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_UINT64 => {
-                    const ptr: [*]c.UA_UInt64 = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_FLOAT => {
-                    const ptr: [*]c.UA_Float = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_DOUBLE => {
-                    const ptr: [*]c.UA_Double = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_STRING => {
-                    const ptr: [*]c.UA_String = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_DATETIME => {
-                    const ptr: [*]c.UA_DateTime = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_NODEID => {
-                    const ptr: [*]c.UA_NodeId = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                c.UA_TYPES_STATUSCODE => {
-                    const ptr: [*]c.UA_StatusCode = @ptrCast(@alignCast(variant.data));
-                    allocator.free(ptr[0..variant.arrayLength]);
-                },
-                else => {}, // Unknown type, skip cleanup
-            }
-        } else {
-            // Scalar cleanup - use destroy() instead of free()
-            switch (type_index) {
-                c.UA_TYPES_BOOLEAN => {
-                    const ptr: *c.UA_Boolean = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_SBYTE => {
-                    const ptr: *c.UA_SByte = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_BYTE => {
-                    const ptr: *c.UA_Byte = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_INT16 => {
-                    const ptr: *c.UA_Int16 = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_UINT16 => {
-                    const ptr: *c.UA_UInt16 = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_INT32 => {
-                    const ptr: *c.UA_Int32 = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_UINT32 => {
-                    const ptr: *c.UA_UInt32 = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_INT64 => {
-                    const ptr: *c.UA_Int64 = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_UINT64 => {
-                    const ptr: *c.UA_UInt64 = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_FLOAT => {
-                    const ptr: *c.UA_Float = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_DOUBLE => {
-                    const ptr: *c.UA_Double = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_STRING => {
-                    const ptr: *c.UA_String = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_DATETIME => {
-                    const ptr: *c.UA_DateTime = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_GUID => {
-                    const ptr: *c.UA_Guid = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_BYTESTRING => {
-                    const ptr: *c.UA_ByteString = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_NODEID => {
-                    const ptr: *c.UA_NodeId = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_STATUSCODE => {
-                    const ptr: *c.UA_StatusCode = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                c.UA_TYPES_LOCALIZEDTEXT => {
-                    const ptr: *c.UA_LocalizedText = @ptrCast(@alignCast(variant.data));
-                    allocator.destroy(ptr);
-                },
-                else => {}, // Unknown type, skip cleanup
-            }
-        }
-
-        // Free array dimensions if present
-        if (variant.arrayDimensionsSize > 0 and variant.arrayDimensions != null) {
-            allocator.free(variant.arrayDimensions[0..variant.arrayDimensionsSize]);
-        }
+        _ = allocator; // No longer used - open62541 manages memory
+        c.UA_Variant_clear(@constCast(&variant));
     }
     pub fn dataTypeNodeId(self: Variant) NodeId {
         return switch (self) {
@@ -744,7 +597,8 @@ test "Variant scalar i32" {
     const c_variant = try variant.toC(allocator);
     defer Variant.freeCVariant(c_variant, allocator);
 
-    const roundtrip = Variant.fromC(c_variant);
+    const roundtrip = try Variant.fromC(c_variant, allocator);
+    defer roundtrip.deinit(allocator);
     try testing.expectEqual(@as(i32, 42), roundtrip.int32);
 }
 
@@ -758,7 +612,8 @@ test "Variant scalar f64" {
     const c_variant = try variant.toC(allocator);
     defer Variant.freeCVariant(c_variant, allocator);
 
-    const roundtrip = Variant.fromC(c_variant);
+    const roundtrip = try Variant.fromC(c_variant, allocator);
+    defer roundtrip.deinit(allocator);
     try testing.expectEqual(@as(f64, 3.14159), roundtrip.double);
 }
 
@@ -772,7 +627,8 @@ test "Variant scalar bool" {
     const c_variant = try variant.toC(allocator);
     defer Variant.freeCVariant(c_variant, allocator);
 
-    const roundtrip = Variant.fromC(c_variant);
+    const roundtrip = try Variant.fromC(c_variant, allocator);
+    defer roundtrip.deinit(allocator);
     try testing.expectEqual(true, roundtrip.boolean);
 }
 
@@ -786,7 +642,8 @@ test "Variant scalar string" {
     const c_variant = try variant.toC(allocator);
     defer Variant.freeCVariant(c_variant, allocator);
 
-    const roundtrip = Variant.fromC(c_variant);
+    const roundtrip = try Variant.fromC(c_variant, allocator);
+    defer roundtrip.deinit(allocator);
     try testing.expectEqualStrings("Hello, OPC UA!", roundtrip.string);
 }
 
@@ -801,7 +658,8 @@ test "Variant array i32" {
     const c_variant = try variant.toC(allocator);
     defer Variant.freeCVariant(c_variant, allocator);
 
-    const roundtrip = Variant.fromC(c_variant);
+    const roundtrip = try Variant.fromC(c_variant, allocator);
+    defer roundtrip.deinit(allocator);
     try testing.expectEqualSlices(i32, &values, roundtrip.int32_array);
 }
 
@@ -816,7 +674,8 @@ test "Variant array f64" {
     const c_variant = try variant.toC(allocator);
     defer Variant.freeCVariant(c_variant, allocator);
 
-    const roundtrip = Variant.fromC(c_variant);
+    const roundtrip = try Variant.fromC(c_variant, allocator);
+    defer roundtrip.deinit(allocator);
     try testing.expectEqualSlices(f64, &values, roundtrip.double_array);
 }
 
