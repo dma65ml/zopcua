@@ -140,11 +140,26 @@ pub fn build(b: *std.Build) void {
         "vendor/library/version_features.c",
     };
 
-    lib_mbedtls.addCSourceFiles(.{ .files = &lib_mbedtls_source_files });
+    const noSanitizeFlags = &[_][]const u8{
+        "-fno-sanitize=undefined",
+    };
+
+    lib_mbedtls.addCSourceFiles(.{
+        .files = &lib_mbedtls_source_files,
+        .flags = noSanitizeFlags,
+    });
     lib_mbedtls.addIncludePath(b.path("vendor/include"));
-    lib_mbedcrypto.addCSourceFiles(.{ .files = &lib_mbedcrypto_source_files });
+
+    lib_mbedcrypto.addCSourceFiles(.{
+        .files = &lib_mbedcrypto_source_files,
+        .flags = noSanitizeFlags,
+    });
     lib_mbedcrypto.addIncludePath(b.path("vendor/include"));
-    lib_mbedx509.addCSourceFiles(.{ .files = &lib_mbedx509_source_files });
+
+    lib_mbedx509.addCSourceFiles(.{
+        .files = &lib_mbedx509_source_files,
+        .flags = noSanitizeFlags,
+    });
     lib_mbedx509.addIncludePath(b.path("vendor/include"));
 
     lib_mbedx509.linkLibrary(lib_mbedcrypto);
