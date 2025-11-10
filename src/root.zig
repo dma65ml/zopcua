@@ -7,12 +7,14 @@ pub const ua_error = @import("ua_error.zig");
 const types_module = @import("types.zig");
 const variant_module = @import("variant.zig");
 const variable_attributes_module = @import("variable_attributes.zig");
+const object_attributes_module = @import("object_attributes.zig");
 const localized_text_module = @import("localized_text.zig");
 const server_module = @import("server.zig");
 const client_module = @import("client.zig");
 const server_config_module = @import("server_config.zig");
 const client_config_module = @import("client_config.zig");
 const browse_module = @import("browse.zig");
+const subscription_module = @import("subscription.zig");
 
 pub const Server = server_module.Server;
 pub const ServerConfig = server_config_module.ServerConfig;
@@ -39,10 +41,23 @@ pub const VariableAttributes = variable_attributes_module.VariableAttributes;
 pub const AccessLevel = variable_attributes_module.AccessLevel;
 pub const AttributeWriteMask = variable_attributes_module.AttributeWriteMask;
 
+pub const ObjectAttributes = object_attributes_module.ObjectAttributes;
+pub const EventNotifier = object_attributes_module.EventNotifier;
+
 pub const LocalizedText = localized_text_module.LocalizedText;
 
 pub const AddNodeError = server_module.AddNodeError;
+pub const NamespaceError = server_module.NamespaceError;
 pub const BrowseError = client_module.BrowseError;
+pub const SubscriptionError = client_module.SubscriptionError;
+pub const MonitoredItemError = client_module.MonitoredItemError;
+
+pub const SubscriptionParameters = subscription_module.SubscriptionParameters;
+pub const SubscriptionId = subscription_module.SubscriptionId;
+pub const MonitoredItemParameters = subscription_module.MonitoredItemParameters;
+pub const MonitoredItemId = subscription_module.MonitoredItemId;
+pub const MonitoringMode = subscription_module.MonitoringMode;
+pub const DataChangeCallback = subscription_module.DataChangeCallback;
 
 pub const BrowseDescription = browse_module.BrowseDescription;
 pub const BrowseResult = browse_module.BrowseResult;
@@ -55,13 +70,17 @@ pub const variant = variant_module;
 pub const server = server_module;
 pub const client = client_module;
 pub const browse = browse_module;
+pub const subscription = subscription_module;
 
 test {
     _ = @import("ua_error.zig");
     _ = @import("variant.zig");
     _ = @import("variable_attributes.zig");
+    _ = @import("object_attributes.zig");
+    _ = @import("event_notifier.zig");
     _ = @import("types.zig");
     _ = @import("server_config.zig");
     _ = @import("client_config.zig");
     _ = @import("browse.zig");
+    _ = @import("subscription.zig");
 }

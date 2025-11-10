@@ -80,7 +80,7 @@ pub const ServerConfig = struct {
     /// **Errors:**
     /// - `BadInternalError` - Configuration setup failed
     /// - `OutOfMemory` - Allocation failed
-    pub fn applyToC(self: ServerConfig, c_config: *c.UA_ServerConfig, allocator: std.mem.Allocator) !void {
+    pub fn applyToC(self: ServerConfig, allocator: std.mem.Allocator, c_config: *c.UA_ServerConfig) !void {
         if (self.security) |sec| {
             // Configure with security
             const c_cert = helpers.helper_createByteString(
@@ -160,6 +160,7 @@ pub const ServerConfig = struct {
 
 test "SecurityMode enum values" {
     const testing = std.testing;
+    std.testing.refAllDecls(@This());
 
     try testing.expectEqual(SecurityMode.none, .none);
     try testing.expectEqual(SecurityMode.sign, .sign);

@@ -67,7 +67,7 @@ pub const NodeId = union(enum) {
     }
 
     /// Free memory allocated by toC() for string/bytestring NodeIds
-    pub fn freeToC(self: NodeId, c_node_id: c.UA_NodeId, allocator: std.mem.Allocator) void {
+    pub fn freeToC(self: NodeId, allocator: std.mem.Allocator, c_node_id: c.UA_NodeId) void {
         switch (self) {
             .string, .byte_string => {
                 if (c_node_id.identifier.string.data) |data| {
@@ -130,7 +130,7 @@ pub const QualifiedName = struct {
     }
 
     /// Free memory allocated by toC()
-    pub fn freeToC(self: QualifiedName, c_qname: c.UA_QualifiedName, allocator: std.mem.Allocator) void {
+    pub fn freeToC(self: QualifiedName, allocator: std.mem.Allocator, c_qname: c.UA_QualifiedName) void {
         _ = self;
         if (c_qname.name.data) |data| {
             const len = c_qname.name.length;
@@ -271,8 +271,8 @@ pub const ExpandedNodeId = struct {
     }
 
     /// Free memory allocated by toC()
-    pub fn freeToC(self: ExpandedNodeId, c_expanded_node_id: c.UA_ExpandedNodeId, allocator: std.mem.Allocator) void {
-        self.node_id.freeToC(c_expanded_node_id.nodeId, allocator);
+    pub fn freeToC(self: ExpandedNodeId, allocator: std.mem.Allocator, c_expanded_node_id: c.UA_ExpandedNodeId) void {
+        self.node_id.freeToC(allocator, c_expanded_node_id.nodeId);
         if (c_expanded_node_id.namespaceUri.data) |data| {
             const len = c_expanded_node_id.namespaceUri.length;
             allocator.free(data[0 .. len + 1]); // +1 for null terminator
@@ -304,13 +304,14 @@ pub const StandardNodeId = struct {
 
 test "NodeId numeric creation and conversion" {
     const testing = std.testing;
+    std.testing.refAllDecls(@This());
 
     const node_id = NodeId.initNumeric(1, 42);
     try testing.expectEqual(@as(u16, 1), node_id.numeric.namespace);
     try testing.expectEqual(@as(u32, 42), node_id.numeric.identifier);
 
     const c_node_id = try node_id.toC(testing.allocator);
-    defer node_id.freeToC(c_node_id, testing.allocator);
+    defer node_id.freeToC(testing.allocator, c_node_id);
     const roundtrip = NodeId.fromC(c_node_id);
     try testing.expectEqual(node_id.numeric.namespace, roundtrip.numeric.namespace);
     try testing.expectEqual(node_id.numeric.identifier, roundtrip.numeric.identifier);
@@ -324,7 +325,7 @@ test "NodeId string creation and conversion" {
     try testing.expectEqualStrings("test.node", node_id.string.identifier);
 
     const c_node_id = try node_id.toC(testing.allocator);
-    defer node_id.freeToC(c_node_id, testing.allocator);
+    defer node_id.freeToC(testing.allocator, c_node_id);
     const roundtrip = NodeId.fromC(c_node_id);
     try testing.expectEqual(node_id.string.namespace, roundtrip.string.namespace);
     try testing.expectEqualStrings(node_id.string.identifier, roundtrip.string.identifier);
@@ -353,7 +354,7 @@ test "QualifiedName creation and conversion" {
     try testing.expectEqualStrings("MyVariable", qname.name);
 
     const c_qname = try qname.toC(testing.allocator);
-    defer qname.freeToC(c_qname, testing.allocator);
+    defer qname.freeToC(testing.allocator, c_qname);
     const roundtrip = QualifiedName.fromC(c_qname);
     try testing.expectEqual(qname.namespace_index, roundtrip.namespace_index);
     try testing.expectEqualStrings(qname.name, roundtrip.name);
@@ -450,7 +451,7 @@ test "ExpandedNodeId conversion without namespace URI" {
     };
 
     const c_expanded = try expanded.toC(testing.allocator);
-    defer expanded.freeToC(c_expanded, testing.allocator);
+    defer expanded.freeToC(testing.allocator, c_expanded);
 
     try testing.expectEqual(@as(u32, 5), c_expanded.serverIndex);
     try testing.expectEqual(@as(usize, 0), c_expanded.namespaceUri.length);
@@ -472,7 +473,7 @@ test "ExpandedNodeId conversion with namespace URI" {
     };
 
     const c_expanded = try expanded.toC(testing.allocator);
-    defer expanded.freeToC(c_expanded, testing.allocator);
+    defer expanded.freeToC(testing.allocator, c_expanded);
 
     try testing.expectEqual(@as(u32, 10), c_expanded.serverIndex);
     try testing.expect(c_expanded.namespaceUri.length > 0);
@@ -480,5 +481,170 @@ test "ExpandedNodeId conversion with namespace URI" {
     const roundtrip = ExpandedNodeId.fromC(c_expanded);
     try testing.expectEqual(expanded.server_index, roundtrip.server_index);
     try testing.expectEqualStrings(expanded.namespace_uri, roundtrip.namespace_uri);
+    try testing.expectEqualStrings(expanded.node_id.string.identifier, roundtrip.node_id.string.identifier);
+}
+
+test "NodeId bytestring creation and conversion" {
+    const testing = std.testing;
+
+    const data = "binary_data_12345";
+    const node_id = NodeId.initByteString(3, data);
+
+    try testing.expectEqual(@as(u16, 3), node_id.byte_string.namespace);
+    try testing.expectEqualStrings(data, node_id.byte_string.identifier);
+
+    const c_node_id = try node_id.toC(testing.allocator);
+    defer node_id.freeToC(testing.allocator, c_node_id);
+    const roundtrip = NodeId.fromC(c_node_id);
+
+    try testing.expectEqual(node_id.byte_string.namespace, roundtrip.byte_string.namespace);
+    try testing.expectEqualStrings(node_id.byte_string.identifier, roundtrip.byte_string.identifier);
+}
+
+test "NodeId guid creation and conversion" {
+    const testing = std.testing;
+
+    const guid = Guid{
+        .data1 = 0xABCDEF01,
+        .data2 = 0x2345,
+        .data3 = 0x6789,
+        .data4 = [_]u8{ 0xA, 0xB, 0xC, 0xD, 0xE, 0xF, 0x0, 0x1 },
+    };
+
+    const node_id = NodeId.initGuid(4, guid);
+
+    try testing.expectEqual(@as(u16, 4), node_id.guid.namespace);
+    try testing.expectEqual(guid.data1, node_id.guid.identifier.data1);
+    try testing.expectEqual(guid.data2, node_id.guid.identifier.data2);
+
+    const c_node_id = try node_id.toC(testing.allocator);
+    defer node_id.freeToC(testing.allocator, c_node_id);
+    const roundtrip = NodeId.fromC(c_node_id);
+
+    try testing.expectEqual(node_id.guid.namespace, roundtrip.guid.namespace);
+    try testing.expectEqual(node_id.guid.identifier.data1, roundtrip.guid.identifier.data1);
+    try testing.expectEqualSlices(u8, &node_id.guid.identifier.data4, &roundtrip.guid.identifier.data4);
+}
+
+test "Guid equality comparison" {
+    const testing = std.testing;
+
+    const guid1 = Guid{
+        .data1 = 0x12345678,
+        .data2 = 0x1234,
+        .data3 = 0x5678,
+        .data4 = [_]u8{1} ** 8,
+    };
+    const guid2 = guid1;
+    const guid3 = Guid{
+        .data1 = 0x87654321,
+        .data2 = 0x4321,
+        .data3 = 0x8765,
+        .data4 = [_]u8{2} ** 8,
+    };
+
+    // Test equality
+    try testing.expect(std.mem.eql(u8, std.mem.asBytes(&guid1), std.mem.asBytes(&guid2)));
+    try testing.expect(!std.mem.eql(u8, std.mem.asBytes(&guid1), std.mem.asBytes(&guid3)));
+}
+
+test "Guid all zeros" {
+    const testing = std.testing;
+
+    const empty_guid = Guid{
+        .data1 = 0,
+        .data2 = 0,
+        .data3 = 0,
+        .data4 = [_]u8{0} ** 8,
+    };
+
+    const c_guid = empty_guid.toC();
+    const roundtrip = Guid.fromC(c_guid);
+
+    try testing.expectEqual(@as(u32, 0), roundtrip.data1);
+    try testing.expectEqual(@as(u16, 0), roundtrip.data2);
+    try testing.expectEqual(@as(u16, 0), roundtrip.data3);
+    try testing.expectEqualSlices(u8, &[_]u8{0} ** 8, &roundtrip.data4);
+}
+
+test "ExpandedNodeId with GUID NodeId" {
+    const testing = std.testing;
+
+    const guid = Guid{
+        .data1 = 0xFEDCBA98,
+        .data2 = 0x7654,
+        .data3 = 0x3210,
+        .data4 = [_]u8{ 0xF, 0xE, 0xD, 0xC, 0xB, 0xA, 0x9, 0x8 },
+    };
+    const node_id = NodeId.initGuid(5, guid);
+    const expanded = ExpandedNodeId{
+        .node_id = node_id,
+        .namespace_uri = "urn:example:guid",
+        .server_index = 7,
+    };
+
+    const c_expanded = try expanded.toC(testing.allocator);
+    defer expanded.freeToC(testing.allocator, c_expanded);
+
+    try testing.expectEqual(@as(u32, 7), c_expanded.serverIndex);
+
+    const roundtrip = ExpandedNodeId.fromC(c_expanded);
+    try testing.expectEqual(expanded.server_index, roundtrip.server_index);
+    try testing.expectEqualStrings(expanded.namespace_uri, roundtrip.namespace_uri);
+    try testing.expectEqual(expanded.node_id.guid.namespace, roundtrip.node_id.guid.namespace);
+    try testing.expectEqual(
+        expanded.node_id.guid.identifier.data1,
+        roundtrip.node_id.guid.identifier.data1,
+    );
+    try testing.expectEqualSlices(
+        u8,
+        &expanded.node_id.guid.identifier.data4,
+        &roundtrip.node_id.guid.identifier.data4,
+    );
+}
+
+test "ExpandedNodeId with ByteString NodeId" {
+    const testing = std.testing;
+
+    const byte_data = "\x01\x02\x03\x04\x05binary";
+    const node_id = NodeId.initByteString(6, byte_data);
+    const expanded = ExpandedNodeId{
+        .node_id = node_id,
+        .namespace_uri = "urn:example:bytestring",
+        .server_index = 12,
+    };
+
+    const c_expanded = try expanded.toC(testing.allocator);
+    defer expanded.freeToC(testing.allocator, c_expanded);
+
+    try testing.expectEqual(@as(u32, 12), c_expanded.serverIndex);
+
+    const roundtrip = ExpandedNodeId.fromC(c_expanded);
+    try testing.expectEqual(expanded.server_index, roundtrip.server_index);
+    try testing.expectEqualStrings(expanded.namespace_uri, roundtrip.namespace_uri);
+    try testing.expectEqual(expanded.node_id.byte_string.namespace, roundtrip.node_id.byte_string.namespace);
+    try testing.expectEqualStrings(expanded.node_id.byte_string.identifier, roundtrip.node_id.byte_string.identifier);
+}
+
+test "ExpandedNodeId empty namespace URI with string NodeId" {
+    const testing = std.testing;
+
+    const node_id = NodeId.initString(7, "empty.namespace.test");
+    const expanded = ExpandedNodeId{
+        .node_id = node_id,
+        .namespace_uri = "",
+        .server_index = 0,
+    };
+
+    const c_expanded = try expanded.toC(testing.allocator);
+    defer expanded.freeToC(testing.allocator, c_expanded);
+
+    try testing.expectEqual(@as(u32, 0), c_expanded.serverIndex);
+    try testing.expectEqual(@as(usize, 0), c_expanded.namespaceUri.length);
+    try testing.expectEqual(@as(?*u8, null), c_expanded.namespaceUri.data);
+
+    const roundtrip = ExpandedNodeId.fromC(c_expanded);
+    try testing.expectEqual(expanded.server_index, roundtrip.server_index);
+    try testing.expectEqualStrings("", roundtrip.namespace_uri);
     try testing.expectEqualStrings(expanded.node_id.string.identifier, roundtrip.node_id.string.identifier);
 }

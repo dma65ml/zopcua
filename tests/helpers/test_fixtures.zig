@@ -119,13 +119,14 @@ pub const TestArrayData = struct {
 };
 
 /// Setup all standard test nodes on a server
-pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !TestNodeIds {
+pub fn setupStandardNodes(server: *ua.Server) !TestNodeIds {
     const parent = ua.StandardNodeId.objects_folder;
     const ref_type = ua.ReferenceType.organizes;
     const base_type = ua.StandardNodeId.base_data_variable_type;
 
     // Scalar nodes
     const boolean = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.boolean"),
         parent,
         ref_type,
@@ -136,10 +137,10 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Boolean"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
     );
 
     const sbyte = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.sbyte"),
         parent,
         ref_type,
@@ -150,10 +151,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test SByte"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const byte = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.byte"),
         parent,
         ref_type,
@@ -164,10 +166,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Byte"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const int16 = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.int16"),
         parent,
         ref_type,
@@ -178,10 +181,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Int16"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const uint16 = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.uint16"),
         parent,
         ref_type,
@@ -192,10 +196,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test UInt16"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const int32 = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.int32"),
         parent,
         ref_type,
@@ -206,10 +211,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Int32"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const uint32 = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.uint32"),
         parent,
         ref_type,
@@ -220,10 +226,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test UInt32"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const int64 = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.int64"),
         parent,
         ref_type,
@@ -234,10 +241,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Int64"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const uint64 = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.uint64"),
         parent,
         ref_type,
@@ -248,10 +256,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test UInt64"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const float = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.float"),
         parent,
         ref_type,
@@ -262,10 +271,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Float"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const double = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.double"),
         parent,
         ref_type,
@@ -276,10 +286,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Double"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const string = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.string"),
         parent,
         ref_type,
@@ -290,10 +301,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test String"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const date_time = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.datetime"),
         parent,
         ref_type,
@@ -304,10 +316,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test DateTime"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const guid = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.guid"),
         parent,
         ref_type,
@@ -318,10 +331,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Guid"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const byte_string = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.bytestring"),
         parent,
         ref_type,
@@ -332,10 +346,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test ByteString"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const node_id = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.nodeid"),
         parent,
         ref_type,
@@ -346,10 +361,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test NodeId"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const status_code = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.statuscode"),
         parent,
         ref_type,
@@ -360,10 +376,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test StatusCode"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     const localized_text = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.localizedtext"),
         parent,
         ref_type,
@@ -374,11 +391,12 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test LocalizedText"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
+
     );
 
     // Array nodes
     const boolean_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.boolean_array"),
         parent,
         ref_type,
@@ -391,10 +409,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.boolean_array.len},
         },
-        allocator,
+
     );
 
     const sbyte_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.sbyte_array"),
         parent,
         ref_type,
@@ -407,10 +426,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.sbyte_array.len},
         },
-        allocator,
+
     );
 
     const byte_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.byte_array"),
         parent,
         ref_type,
@@ -423,10 +443,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.byte_array.len},
         },
-        allocator,
+
     );
 
     const int16_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.int16_array"),
         parent,
         ref_type,
@@ -439,10 +460,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.int16_array.len},
         },
-        allocator,
+
     );
 
     const uint16_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.uint16_array"),
         parent,
         ref_type,
@@ -455,10 +477,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.uint16_array.len},
         },
-        allocator,
+
     );
 
     const int32_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.int32_array"),
         parent,
         ref_type,
@@ -471,10 +494,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.int32_array.len},
         },
-        allocator,
+
     );
 
     const uint32_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.uint32_array"),
         parent,
         ref_type,
@@ -487,10 +511,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.uint32_array.len},
         },
-        allocator,
+
     );
 
     const int64_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.int64_array"),
         parent,
         ref_type,
@@ -503,10 +528,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.int64_array.len},
         },
-        allocator,
+
     );
 
     const uint64_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.uint64_array"),
         parent,
         ref_type,
@@ -519,10 +545,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.uint64_array.len},
         },
-        allocator,
+
     );
 
     const float_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.float_array"),
         parent,
         ref_type,
@@ -535,10 +562,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.float_array.len},
         },
-        allocator,
+
     );
 
     const double_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.double_array"),
         parent,
         ref_type,
@@ -551,10 +579,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.double_array.len},
         },
-        allocator,
+
     );
 
     const date_time_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.datetime_array"),
         parent,
         ref_type,
@@ -567,10 +596,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.date_time_array.len},
         },
-        allocator,
+
     );
 
     const status_code_array = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.statuscode_array"),
         parent,
         ref_type,
@@ -583,11 +613,12 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .value_rank = 1,
             .array_dimensions = &[_]u32{TestArrayData.status_code_array.len},
         },
-        allocator,
+
     );
 
     // Special access nodes
     const readonly = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.readonly"),
         parent,
         ref_type,
@@ -598,10 +629,11 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Read Only"),
             .access_level = .{ .read = true, .write = false },
         },
-        allocator,
+
     );
 
     const writeonly = try server.addVariableNode(
+
         ua.NodeId.initString(1, "test.writeonly"),
         parent,
         ref_type,
@@ -612,7 +644,7 @@ pub fn setupStandardNodes(server: *ua.Server, allocator: std.mem.Allocator) !Tes
             .display_name = ua.LocalizedText.init("en-US", "Test Write Only"),
             .access_level = .{ .read = false, .write = true },
         },
-        allocator,
+
     );
 
     return TestNodeIds{

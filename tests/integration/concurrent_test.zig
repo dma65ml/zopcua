@@ -11,7 +11,7 @@ pub fn main() !void {
     var test_server = try TestServer.init(allocator, 4840);
     defer test_server.deinit();
 
-    const nodes = try fixtures.setupStandardNodes(&test_server.server, allocator);
+    const nodes = try fixtures.setupStandardNodes(&test_server.server);
     try test_server.startAsync();
     defer test_server.stop() catch |err| {
         std.debug.print("Failed to stop test server: {}\n", .{err});
@@ -114,7 +114,7 @@ fn readerThread(ctx: ReaderContext) void {
     var read_count: usize = 0;
 
     while (read_count < ctx.num_reads) : (read_count += 1) {
-        const variant = client.readValueAttribute(ctx.node_id, ctx.allocator) catch {
+        const variant = client.readValueAttribute(ctx.allocator, ctx.node_id) catch {
             ctx.result.* = ReaderResult{ .success = false, .value = 0, .error_msg = "Read failed" };
             return;
         };
@@ -172,7 +172,7 @@ fn testConcurrentWriters(
         std.debug.print("Failed to disconnect verify client: {}\n", .{err});
     };
 
-    const final_value = try verify_client.readValueAttribute(node_id, allocator);
+    const final_value = try verify_client.readValueAttribute(allocator, node_id);
     defer final_value.deinit(allocator);
 }
 
@@ -366,7 +366,7 @@ fn multiNodeThread(ctx: MultiNodeContext) void {
     var i: usize = 0;
     while (i < 15) : (i += 1) {
         // Read
-        const variant = client.readValueAttribute(ctx.node_id, ctx.allocator) catch {
+        const variant = client.readValueAttribute(ctx.allocator, ctx.node_id) catch {
             ctx.result.* = false;
             return;
         };

@@ -87,7 +87,6 @@ pub fn main() !void {
             .display_name = ua.LocalizedText.init("en-US", "Test Value"),
             .access_level = .{ .read = true, .write = true },
         },
-        allocator,
     );
 
     try rw_server.start();
@@ -103,7 +102,7 @@ pub fn main() !void {
     const node_id = ua.NodeId.initString(1, "test.value");
 
     // Read initial value
-    const initial_value = try rw_client.readValueAttribute(node_id, allocator);
+    const initial_value = try rw_client.readValueAttribute(allocator, node_id);
     defer initial_value.deinit(allocator);
 
     // Write new value
@@ -111,7 +110,7 @@ pub fn main() !void {
     try rw_client.writeValueAttribute(node_id, new_value);
 
     // Read it back
-    const read_back = try rw_client.readValueAttribute(node_id, allocator);
+    const read_back = try rw_client.readValueAttribute(allocator, node_id);
     defer read_back.deinit(allocator);
 
     // Cleanup
