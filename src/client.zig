@@ -583,6 +583,7 @@ pub const Client = struct {
         read_value_id.attributeId = c.UA_ATTRIBUTEID_VALUE;
 
         // Create read request
+        // SAFETY: Immediately initialized by UA_ReadRequest_init before any use
         var read_request: c.UA_ReadRequest = undefined;
         c.UA_ReadRequest_init(&read_request);
         defer c.UA_ReadRequest_clear(&read_request);
@@ -676,6 +677,7 @@ pub const Client = struct {
         };
 
         // Create read request
+        // SAFETY: Immediately initialized by UA_ReadRequest_init before any use
         var read_request: c.UA_ReadRequest = undefined;
         c.UA_ReadRequest_init(&read_request);
         defer c.UA_ReadRequest_clear(&read_request);
@@ -793,6 +795,7 @@ pub const Client = struct {
         };
 
         // Create read request
+        // SAFETY: Immediately initialized by UA_ReadRequest_init before any use
         var read_request: c.UA_ReadRequest = undefined;
         c.UA_ReadRequest_init(&read_request);
         defer c.UA_ReadRequest_clear(&read_request);
@@ -885,6 +888,7 @@ pub const Client = struct {
             return ReadAttributeError.OutOfMemory;
         };
 
+        // SAFETY: Immediately initialized by UA_QualifiedName_init before any use
         var browse_name_c: c.UA_QualifiedName = undefined;
         c.UA_QualifiedName_init(&browse_name_c);
         defer c.UA_QualifiedName_clear(&browse_name_c);
@@ -919,6 +923,7 @@ pub const Client = struct {
             return ReadAttributeError.OutOfMemory;
         };
 
+        // SAFETY: Immediately initialized by UA_LocalizedText_init before any use
         var display_name_c: c.UA_LocalizedText = undefined;
         c.UA_LocalizedText_init(&display_name_c);
         defer c.UA_LocalizedText_clear(&display_name_c);
@@ -957,6 +962,7 @@ pub const Client = struct {
             return ReadAttributeError.OutOfMemory;
         };
 
+        // SAFETY: Immediately initialized by UA_LocalizedText_init before any use
         var description_c: c.UA_LocalizedText = undefined;
         c.UA_LocalizedText_init(&description_c);
         defer c.UA_LocalizedText_clear(&description_c);
@@ -997,6 +1003,7 @@ pub const Client = struct {
             return ReadAttributeError.OutOfMemory;
         };
 
+        // SAFETY: Immediately initialized by UA_NodeId_init before any use
         var data_type_c: c.UA_NodeId = undefined;
         c.UA_NodeId_init(&data_type_c);
         defer c.UA_NodeId_clear(&data_type_c);

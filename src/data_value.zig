@@ -14,8 +14,9 @@ pub const DataValue = struct {
         self.value.deinit(allocator);
     }
 
-    /// Convert OPC UA DateTime (100-nanosecond intervals since Jan 1, 1601) to Unix timestamp (seconds since Jan 1, 1970)
-    /// Returns null if the OPC UA timestamp is 0 (no timestamp)
+    /// Convert OPC UA DateTime (100-nanosecond intervals since Jan 1, 1601)
+    /// to Unix timestamp (seconds since Jan 1, 1970).
+    /// Returns null if the OPC UA timestamp is 0 (no timestamp).
     pub fn opcuaDateTimeToUnix(opcua_datetime: i64) ?i64 {
         if (opcua_datetime == 0) return null;
         // OPC UA epoch is Jan 1, 1601
