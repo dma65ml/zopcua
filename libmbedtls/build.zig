@@ -144,27 +144,27 @@ pub fn build(b: *std.Build) void {
         "-fno-sanitize=undefined",
     };
 
-    lib_mbedtls.addCSourceFiles(.{
+    lib_mbedtls.root_module.addCSourceFiles(.{
         .files = &lib_mbedtls_source_files,
         .flags = noSanitizeFlags,
     });
-    lib_mbedtls.addIncludePath(b.path("vendor/include"));
+    lib_mbedtls.root_module.addIncludePath(b.path("vendor/include"));
 
-    lib_mbedcrypto.addCSourceFiles(.{
+    lib_mbedcrypto.root_module.addCSourceFiles(.{
         .files = &lib_mbedcrypto_source_files,
         .flags = noSanitizeFlags,
     });
-    lib_mbedcrypto.addIncludePath(b.path("vendor/include"));
+    lib_mbedcrypto.root_module.addIncludePath(b.path("vendor/include"));
 
-    lib_mbedx509.addCSourceFiles(.{
+    lib_mbedx509.root_module.addCSourceFiles(.{
         .files = &lib_mbedx509_source_files,
         .flags = noSanitizeFlags,
     });
-    lib_mbedx509.addIncludePath(b.path("vendor/include"));
+    lib_mbedx509.root_module.addIncludePath(b.path("vendor/include"));
 
-    lib_mbedx509.linkLibrary(lib_mbedcrypto);
-    lib_mbedtls.linkLibrary(lib_mbedx509);
-    lib_mbedtls.linkLibrary(lib_mbedcrypto);
+    lib_mbedx509.root_module.linkLibrary(lib_mbedcrypto);
+    lib_mbedtls.root_module.linkLibrary(lib_mbedx509);
+    lib_mbedtls.root_module.linkLibrary(lib_mbedcrypto);
 
     b.installArtifact(lib_mbedtls);
     b.installArtifact(lib_mbedcrypto);

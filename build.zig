@@ -27,15 +27,15 @@ pub fn setup(step: *std.Build.Step.Compile, opts: SetupOptions) void {
 fn linkSystemLibraries(step: *std.Build.Step.Compile, target: std.Build.ResolvedTarget) void {
     switch (target.result.os.tag) {
         .windows => {
-            step.linkSystemLibrary("ws2_32");
-            step.linkSystemLibrary("advapi32");
-            step.linkSystemLibrary("crypt32");
-            step.linkSystemLibrary("bcrypt");
-            step.linkSystemLibrary("iphlpapi");
+            step.root_module.linkSystemLibrary("ws2_32", .{});
+            step.root_module.linkSystemLibrary("advapi32", .{});
+            step.root_module.linkSystemLibrary("crypt32", .{});
+            step.root_module.linkSystemLibrary("bcrypt", .{});
+            step.root_module.linkSystemLibrary("iphlpapi", .{});
         },
         .macos => {
-            step.linkFramework("Security");
-            step.linkFramework("CoreFoundation");
+            step.root_module.linkFramework("Security", .{});
+            step.root_module.linkFramework("CoreFoundation", .{});
         },
         else => {},
     }
@@ -63,7 +63,7 @@ pub fn build(b: *std.Build) void {
         .link_libc = true,
     }) });
 
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &.{
             "vendor/open62541.c",
             "vendor/helpers.c",
@@ -82,7 +82,7 @@ pub fn build(b: *std.Build) void {
             "-Wno-error=date-time",
         },
     });
-    lib.addIncludePath(b.path("vendor"));
+    lib.root_module.addIncludePath(b.path("vendor"));
 
     linkMbedtls(b, lib, target, optimize, mbedtls_link);
 
@@ -97,7 +97,7 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
-    lib_unit_tests.addCSourceFiles(.{
+    lib_unit_tests.root_module.addCSourceFiles(.{
         .files = &.{
             "vendor/open62541.c",
             "vendor/helpers.c",
@@ -110,8 +110,8 @@ pub fn build(b: *std.Build) void {
             "-fno-sanitize=undefined",
         },
     });
-    lib_unit_tests.addIncludePath(b.path("vendor"));
-    lib_unit_tests.linkLibC();
+    lib_unit_tests.root_module.addIncludePath(b.path("vendor"));
+    lib_unit_tests.root_module.link_libc = true;
 
     linkMbedtls(b, lib_unit_tests, target, optimize, mbedtls_link);
     linkSystemLibraries(lib_unit_tests, target);
@@ -129,7 +129,7 @@ pub fn build(b: *std.Build) void {
         }),
     });
     variant_memory_tests.root_module.addImport("ua", module);
-    variant_memory_tests.addCSourceFiles(.{
+    variant_memory_tests.root_module.addCSourceFiles(.{
         .files = &.{
             "vendor/open62541.c",
             "vendor/helpers.c",
@@ -141,8 +141,8 @@ pub fn build(b: *std.Build) void {
             "-fno-sanitize=undefined",
         },
     });
-    variant_memory_tests.addIncludePath(b.path("vendor"));
-    variant_memory_tests.linkLibC();
+    variant_memory_tests.root_module.addIncludePath(b.path("vendor"));
+    variant_memory_tests.root_module.link_libc = true;
     linkMbedtls(b, variant_memory_tests, target, optimize, mbedtls_link);
     linkSystemLibraries(variant_memory_tests, target);
 
@@ -183,7 +183,7 @@ pub fn build(b: *std.Build) void {
             });
             exe.root_module.addImport("ua", mod);
             exe.root_module.addImport("test_helpers", helpers);
-            exe.addCSourceFiles(.{
+            exe.root_module.addCSourceFiles(.{
                 .files = &.{
                     "vendor/open62541.c",
                     "vendor/helpers.c",
@@ -195,8 +195,8 @@ pub fn build(b: *std.Build) void {
                     "-fno-sanitize=undefined",
                 },
             });
-            exe.addIncludePath(builder.path("vendor"));
-            exe.linkLibC();
+            exe.root_module.addIncludePath(builder.path("vendor"));
+            exe.root_module.link_libc = true;
             linkMbedtls(builder, exe, tgt, opt, mbedtls_mode);
             linkSystemLibraries(exe, tgt);
             return exe;
@@ -320,10 +320,10 @@ fn linkMbedtls(
                 .target = target,
                 .optimize = optimize,
             });
-            step.addIncludePath(mbedtls.path("vendor/include"));
-            step.linkLibrary(mbedtls.artifact("mbedtls"));
-            step.linkLibrary(mbedtls.artifact("mbedcrypto"));
-            step.linkLibrary(mbedtls.artifact("mbedx509"));
+            step.root_module.addIncludePath(mbedtls.path("vendor/include"));
+            step.root_module.linkLibrary(mbedtls.artifact("mbedtls"));
+            step.root_module.linkLibrary(mbedtls.artifact("mbedcrypto"));
+            step.root_module.linkLibrary(mbedtls.artifact("mbedx509"));
         },
         .system => {
             if (target.result.os.tag == .macos) {
@@ -331,13 +331,13 @@ fn linkMbedtls(
                     "/opt/homebrew"
                 else
                     "/usr/local";
-                step.addIncludePath(.{ .cwd_relative = b.fmt("{s}/include", .{brew_prefix}) });
-                step.addLibraryPath(.{ .cwd_relative = b.fmt("{s}/lib", .{brew_prefix}) });
+                step.root_module.addIncludePath(.{ .cwd_relative = b.fmt("{s}/include", .{brew_prefix}) });
+                step.root_module.addLibraryPath(.{ .cwd_relative = b.fmt("{s}/lib", .{brew_prefix}) });
             }
 
-            step.linkSystemLibrary("mbedtls");
-            step.linkSystemLibrary("mbedx509");
-            step.linkSystemLibrary("mbedcrypto");
+            step.root_module.linkSystemLibrary("mbedtls", .{});
+            step.root_module.linkSystemLibrary("mbedx509", .{});
+            step.root_module.linkSystemLibrary("mbedcrypto", .{});
         },
     }
 }

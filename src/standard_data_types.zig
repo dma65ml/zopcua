@@ -34,7 +34,7 @@ pub const StandardDataType = enum(u32) {
         return switch (node_id) {
             .numeric => |n| blk: {
                 if (n.namespace != 0) break :blk null;
-                break :blk std.meta.intToEnum(StandardDataType, n.identifier) catch null;
+                break :blk std.enums.fromInt(StandardDataType, n.identifier);
             },
             else => null,
         };

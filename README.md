@@ -3,11 +3,22 @@
   <p>A Zig wrapper for <a href="https://github.com/open62541/open62541">open62541</a>, an open-source OPC UA implementation.</p>
   <p>
     <a href="https://opensource.org/licenses/MIT"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-e0af68.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white" /></a>
-    <a href="https://github.com/xentropic-dev/zopcua/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/xentropic-dev/zopcua/ci.yml?style=for-the-badge&label=CI&logo=github&color=9ece6a" /></a>
-    <a href="https://github.com/xentropic-dev/zopcua/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/xentropic-dev/zopcua?style=for-the-badge&color=7aa2f7&logo=github" /></a>
-    <img alt="Zig 0.14" src="https://img.shields.io/badge/Zig-0.15.2-f7a41d.svg?style=for-the-badge&logo=zig&logoColor=white" />
+    <a href="https://github.com/dma65ml/zopcua/actions"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/xentropic-dev/zopcua/ci.yml?style=for-the-badge&label=CI&logo=github&color=9ece6a" /></a>
+    <a href="https://github.com/dma65ml/zopcua/stargazers"><img alt="GitHub Stars" src="https://img.shields.io/github/stars/xentropic-dev/zopcua?style=for-the-badge&color=7aa2f7&logo=github" /></a>
+    <img alt="Zig 0.16" src="https://ziglang.org/img/zig-logo-dynamic.svg?style=for-the-badge&logo=zig&logoColor=white" />
   </p>
 </div>
+
+## 🚀 Zig 0.16.0 Fork
+
+This repository is a fork of the original `zopcua` project, updated and adapted to ensure full compatibility with **Zig 0.16.0**.
+
+### Key Adaptations:
+* **Build System:** Migrated `build.zig` to use the new `root_module` API pattern.
+* **Standard Library:** Replaced deprecated functions (e.g., switching from `std.meta.intToEnum` to `std.enums.fromInt`).
+* **C-Translation:** Fixed compiler-internal macro translation errors (`promoteIntLiteral`) and updated C-bindings.
+* **Windows Support:** Added missing native network dependencies (`iphlpapi.lib`) for seamless compilation on Windows.
+
 
 ## ⚠️ Development Status
 
