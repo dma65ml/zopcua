@@ -30,7 +30,7 @@ This repository is a fork of the original `zopcua` project, updated and adapted 
 Progress: [█████░░░░░░░░░░░░░░░] 28%
 ```
 
-- Requires Zig 0.15.2
+- Requires Zig 0.16.0
 - See branch/tag history for previous Zig versions
 - APIs are unstable and subject to change
 
