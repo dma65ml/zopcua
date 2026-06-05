@@ -99,7 +99,7 @@ See [ROADMAP.md](docs/ROADMAP.md) for detailed progress tracking.
 Add zopcua to your project:
 
 ```bash
-zig fetch --save git+https://github.com/xentropic-dev/zopcua.git
+zig fetch --save git+https://github.com/dma65ml/zopcua.git
 ```
 
 Then in your `build.zig`:
